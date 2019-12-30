@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29509.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "OpenBrother", "OpenBrother.pyproj", "{CA347136-78E9-4B8E-BA0E-5D6DA46EEFE7}"
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "turtle_emu", "..\turtle_emu\turtle_emu.pyproj", "{EC863D4B-A52E-4F82-BF93-E5F2E94FE69A}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "turtle_emu", "turtle_emu\turtle_emu.pyproj", "{3CB3A01E-FC73-4528-933C-63FDF0E1761B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +15,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{CA347136-78E9-4B8E-BA0E-5D6DA46EEFE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CA347136-78E9-4B8E-BA0E-5D6DA46EEFE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EC863D4B-A52E-4F82-BF93-E5F2E94FE69A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EC863D4B-A52E-4F82-BF93-E5F2E94FE69A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CB3A01E-FC73-4528-933C-63FDF0E1761B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CB3A01E-FC73-4528-933C-63FDF0E1761B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
