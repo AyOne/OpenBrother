@@ -5,6 +5,7 @@ import random
 import unittest
 import sys
 
+
 blocks = ["minecraft:air", "minecraft:ore"]
 
 class Mongolo_ModelX():
@@ -100,23 +101,29 @@ class Mongolo_ModelX():
 
 
 
-	def find(self, filter: dict, db:[str, pymongo.database.Database, pymongo.collection.Collection]):
+	def find(self, filter: dict, db:[str, pymongo.database.Database, pymongo.collection.Collection], id:bool=False):
 		#if db is a collection, no need for more querrys. low cost
 		if type(db) == pymongo.collection.Collection:
 			return db.find(filter)
 		if type(db) == str:
 			db = self.client[db]
+		finalData = []
 		if "x" in filter:
-			collection = db[filter["x"]]
-			return collection.find(filter)
+			collection = db[str(filter["x"])]
+			del filter["x"]
+			print(filter)
+			r = collection.find(filter)
+			finalData += list(collection.find(filter))
 		else:
-			finalData = []
 			for name in db.list_collection_names():
 				collection = db[name]
-				finalData += collection.find(filter)
-			return finalData
+				finalData += list(collection.find(filter))
+		if id is False:
+			for data in finalData:
+				del data["_id"]
+		return finalData
 
-	def findNreplace(self, data: list, filter: dict, db:[str, pymongo.database.Database, pymongo.collection.Collection]):
+	def findNreplace(self, data: dict, filter: dict, db:[str, pymongo.database.Database, pymongo.collection.Collection]):
 		#if db is a collection, no need for more querrys. low cost
 		if type(db) == pymongo.collection.Collection:
 			if db.find_one_and_replace(filter, data) == None:
@@ -127,8 +134,9 @@ class Mongolo_ModelX():
 			db = self.client[db]
 		#if X is speficied in the filter, no need to search in all collections. low cost
 		if "x" in filter:
-			collection = db[filter["x"]]
-			if collection.find_one_and_replace(filter, data):
+			collection = db[str(filter["x"])]
+			del filter["x"]
+			if collection.find_one_and_replace(filter, data) == None:
 				collection.insert_one(data)
 		#else... meh. let's querry them all... warning : heavy cost
 		else:
