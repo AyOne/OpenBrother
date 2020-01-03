@@ -4,6 +4,7 @@ import re
 import random
 import unittest
 import sys
+import math
 
 
 blocks = ["minecraft:air", "minecraft:ore"]
@@ -144,3 +145,116 @@ class Mongolo_ModelX():
 				collection = db[name]
 				if collection.find_one_and_replace(filter, data) == None:
 					collection.insert_one(data)
+
+
+
+
+class Mongolo_ModelChunk():
+	def __init__(self, url:str="mongodb://localhost:27017/"):
+		self.client = pymongo.MongoClient(url)
+		self.debug = self.Debug(self)
+
+
+	class Debug():
+		def __init__(self, ModelChunk):
+			self.ModelChunk = ModelChunk
+
+
+		def random_block(self, name=None, x=None, y=None, z=None, meta=None):
+			if name is None:
+				name = random.choice(blocks)
+			if y is None:
+				y = random.randint(0, 0xFFFFFFFF)
+			if x is None:
+				x = random.randint(0, 0xFFFFFFFF)
+			if z is None:
+				z = random.randint(0, 0xFFFFFFFF)
+			if meta is None:
+				meta = random.randint(0, 0xFFFFFFFF)
+			data = {
+				"name":name,
+				"y":y,
+				"z":z,
+				"meta":meta,
+			}
+			return [data, x]
+
+		def random_chunk(self, x=None, y=None, z=None):
+			return []
+
+		def new_chunk(self, world:str):
+			return []
+
+
+	def getChunkFromBlock(self, block:dict, world:pymongo.database.Database, db:bool=True):
+		chunk = {
+			"x":math.floor(block["x"] / 16),
+			"y":math.floor(block["y"] / 16),
+			"z":math.floor(block["z"] / 16),
+			"chunk":None
+		}
+		if db:
+			chunk["chunk"] = world["%d-%d-%d" % (chunk["x"], chunk["y"], chunk["z"])]
+		return chunk
+
+	def isInChunk(self, block:dict, chunk:dict):
+		if math.floor(block["x"] / 16) != chunk["x"]:
+			return False
+		elif math.floor(block["y"] / 16) != chunk["y"]:
+			return False
+		elif math.floor(block["z"] / 16) != chunk["z"]:
+			return False
+		return True
+
+	def findNreplace(self, block:dict, world:str):
+		chunk = blockToChunk(data, self.client[world])
+		filter = {
+			"x":block["x"] - chunk["x"],
+			"y":block["y"] - chunk["y"],
+			"z":block["z"] - chunk["z"],
+		}
+		block["x"] = filter["x"]
+		block["y"] = filter["y"]
+		block["z"] = filter["z"]
+		if chunk["chunk"].find_one_and_replace(filter, block) == None:
+			chunk["chunk"].insert_one(block)
+
+	def findNreplace_chunk(self, blocks:list, world:str):
+		if len(blocks) == 0:
+			return
+		ref_chunk = self.getChunkFromBlock(block[0], self.client[world])
+		for block in blocks:
+			if not isInChunk(block, ref_chunk):
+				raise Exception("block list contains blocks from multiple chunks")
+		for block in blocks:
+			filter = {
+				"x":block["x"] - chunk["x"],
+				"y":block["y"] - chunk["y"],
+				"z":block["z"] - chunk["z"],
+			}
+			block["x"] = filter["x"]
+			block["y"] = filter["y"]
+			block["z"] = filter["z"]
+			if ref_chunk["chunk"].find_one_and_replace(filter) == None:
+				ref_chunk["chunk"].insert_one(block)
+
+	def find(self, filter:dict, world:str, id:bool=False):
+		chunk = getChunkFromBlock(filter, self.client[world])
+		filter_ = {
+			"x":filter["x"] - chunk["x"],
+			"y":filter["y"] - chunk["y"],
+			"z":filter["z"] - chunk["z"],
+		}
+		finalData = list(chunk["chunk"].find(filter_))
+		if not id:
+			for data in finalData:
+					del data["_id"]
+		return finalData
+
+	def find_chunk(self, filter:dict, world:str, id:bool=False):
+		chunk = getChunkFromBlock(filter, self.client[world])
+		finalData = list(chunk["chunk"].find({}))
+		if not id:
+			for daya in finalData:
+				del data["_id"]
+		return finalData
