@@ -7,9 +7,23 @@ import sys
 import math
 
 
+
+def testing(r):
+	mongoloClient = Mongolo_ModelChunk("mongodb://localhost:27017/")
+	mongoloClient.drop("overworld")
+	t = time.time()
+	sys.stdout.write("\r{} chunk to be generated...".format(mongoloClient.debug.radius_countD(r)))
+	random_chunks = mongoloClient.debug.many_random(r)
+	sys.stdout.write("done ({}s)\n".format(time.time() - t))
+	t = time.time()
+	c = mongoloClient.replaceChunk(random_chunks, "overworld", True, r)
+	print("{} chunks ({} blocks) added to the database. in {}s".format(c, c * pow(16, 3), time.time() - t))
+
+
+
 blocks = ["minecraft:air", "minecraft:ore"]
 
-class Mongolo_ModelX():
+class Mongolo_ModelX(): #useless.
 	def __init__(self, url:str="mongodb://localhost:27017/"):
 		self.client = pymongo.MongoClient(url)
 		self.debug = self.Debug(self)
@@ -149,6 +163,23 @@ class Mongolo_ModelX():
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class Mongolo_ModelChunk():
 	def __init__(self, url:str="mongodb://localhost:27017/"):
 		self.client = pymongo.MongoClient(url)
@@ -158,6 +189,28 @@ class Mongolo_ModelChunk():
 	class Debug():
 		def __init__(self, ModelChunk):
 			self.ModelChunk = ModelChunk
+
+		def radius_count(self, radius):
+			def gc_2d(radius):
+				if radius == 0:
+					return 1
+				return radius * 4 + gc_2d(radius-1)
+			def gc_3d(origin, index):
+				if origin == index:
+					return gc_2d(index)
+				return gc_2d(index) * 2 + gc_3d(origin, index + 1)
+			return gc_3d(radius, 0) * 4096
+		
+		def radius_countD(self, radius):
+			def gc_2d(radius):
+				if radius == 0:
+					return 1
+				return radius * 4 + gc_2d(radius-1)
+			def gc_3d(origin, index):
+				if origin == index:
+					return gc_2d(index)
+				return gc_2d(index) * 2 + gc_3d(origin, index + 1)
+			return gc_3d(radius, 0)
 
 
 		def random_block(self, name=None, x=None, y=None, z=None, meta=None):
@@ -175,27 +228,76 @@ class Mongolo_ModelChunk():
 				"name":name,
 				"y":y,
 				"z":z,
+				"x":x,
 				"meta":meta,
 			}
-			return [data, x]
+			return data
 
 		def random_chunk(self, x=None, y=None, z=None):
-			return []
+			if x is None:
+				x = random.randint(0, 0xFFFFFFFF)
+			if y is None:
+				y = random.randint(0, 0xFFFFFFFF)
+			if z is None:
+				z = random.randint(0, 0xFFFFFFFF)
+			chunk = self.ModelChunk.Chunk(x, y, z, self.ModelChunk.client)
+			for x_ in range(16):
+				for y_ in range(16):
+					for z_ in range(16):
+						chunk.data.append(self.random_block(x=x_, y=y_, z=z_))
+			return chunk
 
-		def new_chunk(self, world:str):
-			return []
+		def many_random(self, radius:int):
+			count = 0
+			finalData = []
+			for x in range(-radius, radius + 1):
+				for z in range(-(radius - abs(x)), (radius + 1) - abs(x)):
+					for y in range(-(radius - (abs(x) + abs(z))), (radius + 1) - (abs(x) + abs(z))):
+						finalData.append(self.random_chunk(x, y, z))
+			return finalData
+
+	class Chunk():
+		def __str__(self):
+			return "%d-%d-%d" % (self.x, self.y, self.z)
+
+		def __init__(self, x:int, y:int, z:int, client:pymongo.database.Database):
+			self.x = x
+			self.y = y
+			self.z = z
+			self.client = client
+			self.db = None
+			self.data = []
+
+		def initData(self):
+			if not self.db:
+				raise Exception("not connected")
+			self.data = list(self.db.find({}))
+		def connect(self, world:str):
+			if not self.db:
+				self.db = self.client[world][str(self)]
 
 
-	def getChunkFromBlock(self, block:dict, world:pymongo.database.Database, db:bool=True):
+	def getChunkFromBlock(self, block:dict, world:str):
+		db = self.client[world]
 		chunk = {
 			"x":math.floor(block["x"] / 16),
 			"y":math.floor(block["y"] / 16),
 			"z":math.floor(block["z"] / 16),
-			"chunk":None
+			"data":None
 		}
-		if db:
-			chunk["chunk"] = world["%d-%d-%d" % (chunk["x"], chunk["y"], chunk["z"])]
+		if Rdb:	#return db ?
+			chunk["chunk"] = db["%d-%d-%d" % (chunk["x"], chunk["y"], chunk["z"])]
 		return chunk
+
+	def getChunk(self, x:int, y:int, z:int, world:str):
+		chunk = {
+			"x":math.floor(block["x"] / 16),
+			"y":math.floor(block["y"] / 16),
+			"z":math.floor(block["z"] / 16),
+			"chunk": world["%d-%d-%d" % (chunk["x"], chunk["y"], chunk["z"])]
+		}
+		return chunk
+
 
 	def isInChunk(self, block:dict, chunk:dict):
 		if math.floor(block["x"] / 16) != chunk["x"]:
@@ -206,55 +308,39 @@ class Mongolo_ModelChunk():
 			return False
 		return True
 
-	def findNreplace(self, block:dict, world:str):
-		chunk = blockToChunk(data, self.client[world])
-		filter = {
-			"x":block["x"] - chunk["x"],
-			"y":block["y"] - chunk["y"],
-			"z":block["z"] - chunk["z"],
-		}
-		block["x"] = filter["x"]
-		block["y"] = filter["y"]
-		block["z"] = filter["z"]
-		if chunk["chunk"].find_one_and_replace(filter, block) == None:
-			chunk["chunk"].insert_one(block)
+	def replaceChunk(self, chunks:[Chunk, list], world:str, debug=False, radius=0):
+		len = self.debug.radius_countD(radius)
+		counter = 0
+		b = 0
+		if debug:
+			sys.stdout.write("\rfill progress : 0%")
 
-	def findNreplace_chunk(self, blocks:list, world:str):
-		if len(blocks) == 0:
-			return
-		ref_chunk = self.getChunkFromBlock(block[0], self.client[world])
-		for block in blocks:
-			if not isInChunk(block, ref_chunk):
-				raise Exception("block list contains blocks from multiple chunks")
-		for block in blocks:
-			filter = {
-				"x":block["x"] - chunk["x"],
-				"y":block["y"] - chunk["y"],
-				"z":block["z"] - chunk["z"],
-			}
-			block["x"] = filter["x"]
-			block["y"] = filter["y"]
-			block["z"] = filter["z"]
-			if ref_chunk["chunk"].find_one_and_replace(filter) == None:
-				ref_chunk["chunk"].insert_one(block)
 
-	def find(self, filter:dict, world:str, id:bool=False):
-		chunk = getChunkFromBlock(filter, self.client[world])
-		filter_ = {
-			"x":filter["x"] - chunk["x"],
-			"y":filter["y"] - chunk["y"],
-			"z":filter["z"] - chunk["z"],
-		}
-		finalData = list(chunk["chunk"].find(filter_))
-		if not id:
-			for data in finalData:
-					del data["_id"]
-		return finalData
+		if type(chunks) == list:
+			for chunk in chunks:
+				chunk.connect(world)
+				chunk.db.drop()
+				chunk.db.insert_many(chunk.data)
 
-	def find_chunk(self, filter:dict, world:str, id:bool=False):
-		chunk = getChunkFromBlock(filter, self.client[world])
-		finalData = list(chunk["chunk"].find({}))
-		if not id:
-			for daya in finalData:
-				del data["_id"]
-		return finalData
+				counter += 1
+				p = (counter / len) * 100
+				if debug and b + 1 < p:
+					b = int(p)
+					sys.stdout.write("\rfill progress : {}%".format(b))
+		else:
+			chunks.connect(world)
+			chunks.db.drop()
+			chunks.db.insert_many(chunk["data"])
+
+		if debug:
+			sys.stdout.write("\rfill progress : 100%\n")
+		return counter
+
+	def drop(self, world:str):
+		db = self.client[world]
+		for name in db.list_collection_names():
+			db.drop_collection(name)
+
+	def find(self, filter:dict, world:str, chunk:Chunk):
+		chunk.connect()
+		return chunk.db.find(filter)
