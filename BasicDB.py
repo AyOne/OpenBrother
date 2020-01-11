@@ -21,7 +21,20 @@ def testing(r):
 
 
 
-blocks = ["minecraft:air", "minecraft:ore"]
+blocks = []
+blocks += ["minecraft:air"] * 10
+blocks += ["minecraft:stone"] * 10
+blocks += ["minecraft:goldOre"] * 2
+blocks += ["minecraft:coalOre"] * 5
+blocks += ["minecraft:ironOre"] * 4
+blocks += ["minecraft:redstoneOre"] * 2
+blocks += ["minecraft:lapisOre"] * 2
+blocks += ["minecraft:diamondOre"]
+blocks += ["minecraft:emeraldOre"]
+
+
+
+
 
 class Mongolo_ModelX(): #useless.
 	def __init__(self, url:str="mongodb://localhost:27017/"):
@@ -50,7 +63,7 @@ class Mongolo_ModelX(): #useless.
 			if z is None:
 				z = random.randint(0, 0xFFFFFFFF)
 			if meta is None:
-				meta = random.randint(0, 0xFFFFFFFF)
+				meta = random.randint(0, 255)
 			data = {
 				"name":name,
 				"y":y,
@@ -223,7 +236,7 @@ class Mongolo_ModelChunk():
 			if z is None:
 				z = random.randint(0, 0xFFFFFFFF)
 			if meta is None:
-				meta = random.randint(0, 0xFFFFFFFF)
+				meta = random.randint(0, 255)
 			data = {
 				"name":name,
 				"y":y,
@@ -340,6 +353,38 @@ class Mongolo_ModelChunk():
 		db = self.client[world]
 		for name in db.list_collection_names():
 			db.drop_collection(name)
+
+
+	def bigFind(self, filter:dict, world:str, chunk:dict):
+		db = self.client[world]
+		finalData = {}
+
+
+		if not "x" in chunk:
+			chunk["x"] = ".*"
+		if not "y" in chunk:
+			chunk["y"] = ".*"
+		if not "z" in chunk:
+			chunk["z"] = ".*"
+
+
+
+		regex = "^{}-{}-{}$".format(chunk["x"], chunk["y"], chunk["z"])
+
+
+		for name in db.collection_names():
+			match = re.match(regex, name)
+			if match:
+				chunk = db[name]
+				data = list(chunk.find(filter))
+				for block in data:
+					if block["name"] in finalData:
+						finalData[block["name"]] += 1
+					else:
+						finalData[block["name"]] = 1
+		return finalData
+
+
 
 	def find(self, filter:dict, world:str, chunk:Chunk):
 		chunk.connect()

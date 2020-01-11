@@ -8,7 +8,7 @@ import random
 import time
 import re
 import sys
-from flask import Flask, escape, request
+from flask import Flask, escape, request, Response
 
 
 mongoloClient = Mongolo_ModelChunk("mongodb://localhost:27017/")
@@ -46,13 +46,33 @@ def setBlockAt(x, y, z, meta, name):
 	return "Ok"
 
 
+@app.route("/listeTypeBlocks")
+def listTypeBlocks():
+	if not request.json:
+		return "request not formated as JSON", 400
+	chunks = request.json["chunks"]
+	finalData = {}
+	for chunk in chunks:
+		buffer = mongoloClient.bigFind({}, "overworld", chunk)
+		for b in buffer.keys():
+			if b in finalData:
+				finalData[b] += buffer[b]
+			else:
+				finalData[b] = buffer[b]
+	return finalData
+		
+@app.route("/debug/rebuild", methods=["POST"])
+def debugRebuild():
+	if not request.json:
+		return "request not formated as JSON", 400
+	radius = request.json["radius"]
+	testing(radius)
+	return "ok", 200
+
+
+#testing(3)
 
 
 
-
-testing(3)
-
-
-
-#app.run(threaded=True)
+app.run(threaded=True)
 
