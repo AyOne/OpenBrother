@@ -3,6 +3,7 @@ import React from 'react';
 import './App.css';
 import {RadialBarChart, RadialBar, Legend, Tooltip, PieChart, Pie} from 'recharts';
 import Cell from "recharts/es6/component/Cell";
+import HolderComponent from "./components/HolderComponent";
 
 function App() {
   const data = [
@@ -106,7 +107,7 @@ function App() {
           }
         </Pie>
       </PieChart>
-
+      <HolderComponent/>
 
     </div>
 
