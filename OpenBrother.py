@@ -1,5 +1,5 @@
 import socket
-from BasicDB import Mongolo_ModelChunk, debug_rebuildosef
+from BasicDB import Mongolo_ModelChunk, debug_rebuildChunks, debug_rebuildData
 from inputs import get_gamepad
 import threading
 import asyncio
@@ -13,6 +13,7 @@ from flask_cors import CORS
 
 
 mongoloClient = Mongolo_ModelChunk("mongodb://localhost:27017/")
+blockdata = mongoloClient.blockdata
 app = Flask(__name__)
 CORS(app)
 
@@ -47,37 +48,80 @@ def setBlockAt(x, y, z, meta, name):
 	return "Ok"
 
 
+
+@app.route("/IDtoBLOCK")
+def id_to_block():
+	if not request.json:
+		return "request not formated as JSON", 400
+	if "id" not in request.json:
+		return "\"id\" not specified in the body", 400
+	blocks = blockdata.getBlocks(id=request.json["id"])
+	for b in blocks:
+		b["id"] = str(b["_id"])
+		del b["_id"]
+	if len(blocks) > 0:
+		return blocks[0], 200
+	return {}, 200
+
+@app.route("/BLOCKtoID")
+def block_to_id():
+	if not request.json:
+		return "request not formated as JSON", 400
+	if "data" not in request.json:
+		return "\"data\" not specified in the body", 400
+
+	block_name = None
+	if "name" in request.json["data"]:
+		block_name = request.json["data"]["name"]
+	elif "block" in request.json["data"] and "mod" in request.json["data"]:
+		block_name = "{}:{}".format(request.json["data"]["mod"], request.json["data"]["block"])
+	else:
+		return "data not formated as intented", 400
+
+	blocks = blockdata.getBlocks(name=block_name)
+	for b in blocks:
+		b["id"] = str(b["_id"])
+		del b["_id"]
+	if len(blocks) > 0:
+		return blocks[0], 200
+	return {}, 200
+
 @app.route("/listeTypeBlocks")
 def listTypeBlocks():
 	if not request.json:
 		return "request not formated as JSON", 400
-	chunks = request.json["chunks"]
-	if not chunk:
+	if "chunks" not in request.json:
 		return "\"chunk\" not specified in the body", 400
-	filter = request.json["filter"]
-	if not filter:
+	chunks = request.json["chunks"]
+	if "filter" not in request.json:
 		return "\"filter\" not specified in the body", 400
-	world = requesr.json["dim"]
-	if not world:
-		return "\"dim\" not speficied in the body"
-	finalData = {}
+	filter = request.json["filter"]
+	if "dim" not in  request.json:
+		return "\"dim\" not speficied in the body", 400
+	world = request.json["dim"]
+	bufferData = {}
 	for chunk in chunks:
 		buffer = mongoloClient.bigFind({}, "overworld", chunk)
 		for b in buffer.keys():
-			if b in finalData:
-				finalData[b] += buffer[b]
+			if b in bufferData:
+				bufferData[b] += buffer[b]
 			else:
-				finalData[b] = buffer[b]
-	return finalData
-		
+				bufferData[b] = buffer[b]
+	finalData = {}
+	for name in bufferData.keys():
+		finalData[blockdata.getBlocks(id=name)[0]["name"]] = bufferData[name]
+	return finalData, 200
+
+
 @app.route("/debug/rebuild", methods=["POST"])
 def debugRebuild():
 	if not request.json:
 		return "request not formated as JSON", 400
-	radius = request.json["radius"]
-	if not radius:
+	if "radius" not in  request.json:
 		return "\"radius\" not specified in the body", 400
-	debug_rebuildosef(radius)
+	radius = request.json["radius"]
+	debug_rebuildData()
+	debug_rebuildChunks(radius)
 	return "ok", 200
 
 
