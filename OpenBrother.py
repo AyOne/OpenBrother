@@ -1,5 +1,5 @@
 import socket
-from BasicDB import Mongolo_ModelX, Mongolo_ModelChunk, testing
+from BasicDB import Mongolo_ModelChunk, debug_rebuildosef
 from inputs import get_gamepad
 import threading
 import asyncio
@@ -9,11 +9,12 @@ import time
 import re
 import sys
 from flask import Flask, escape, request, Response
+from flask_cors import CORS
 
 
 mongoloClient = Mongolo_ModelChunk("mongodb://localhost:27017/")
 app = Flask(__name__)
-
+CORS(app)
 
 @app.route("/")
 def hello():
@@ -51,6 +52,14 @@ def listTypeBlocks():
 	if not request.json:
 		return "request not formated as JSON", 400
 	chunks = request.json["chunks"]
+	if not chunk:
+		return "\"chunk\" not specified in the body", 400
+	filter = request.json["filter"]
+	if not filter:
+		return "\"filter\" not specified in the body", 400
+	world = requesr.json["dim"]
+	if not world:
+		return "\"dim\" not speficied in the body"
 	finalData = {}
 	for chunk in chunks:
 		buffer = mongoloClient.bigFind({}, "overworld", chunk)
@@ -66,7 +75,9 @@ def debugRebuild():
 	if not request.json:
 		return "request not formated as JSON", 400
 	radius = request.json["radius"]
-	testing(radius)
+	if not radius:
+		return "\"radius\" not specified in the body", 400
+	debug_rebuildosef(radius)
 	return "ok", 200
 
 

@@ -8,7 +8,8 @@ import math
 
 
 
-def testing(r):
+
+def debug_rebuildosef(radius:int=3):
 	mongoloClient = Mongolo_ModelChunk("mongodb://localhost:27017/")
 	mongoloClient.drop("overworld")
 	t = time.time()
@@ -18,6 +19,31 @@ def testing(r):
 	t = time.time()
 	c = mongoloClient.replaceChunk(random_chunks, "overworld", True, r)
 	print("{} chunks ({} blocks) added to the database. in {}s".format(c, c * pow(16, 3), time.time() - t))
+
+
+def testing(r):
+
+	blockdata = Mongolo_BlockData()
+	blockdata.drop()
+	a = blockdata.insert(Mongolo_BlockData.Data("minecraft", "air"))
+	b = blockdata.insert(Mongolo_BlockData.Data("minecraft", "stone"))
+	print(blockdata.insert(Mongolo_BlockData.Data("minecraft", "goldOre")))
+	print(blockdata.insert(Mongolo_BlockData.Data("minecraft", "coalOre")))
+	print(blockdata.insert(Mongolo_BlockData.Data("minecraft", "ironOre")))
+	print(blockdata.insert(Mongolo_BlockData.Data("minecraft", "redstoneOre")))
+	print(blockdata.insert(Mongolo_BlockData.Data("minecraft", "lapisOre")))
+	print(blockdata.insert(Mongolo_BlockData.Data("minecraft", "diamondOre")))
+	print(blockdata.insert(Mongolo_BlockData.Data("minecraft", "emeraldOre")))
+	print("ok")
+
+	print(blockdata.getBlocks(a))
+	print(blockdata.getBlocks(b))
+
+
+
+
+
+
 
 
 
@@ -36,153 +62,54 @@ blocks += ["minecraft:emeraldOre"]
 
 
 
-class Mongolo_ModelX(): #useless.
+class Mongolo_BlockData():
 	def __init__(self, url:str="mongodb://localhost:27017/"):
-		self.client = pymongo.MongoClient(url)
-		self.debug = self.Debug(self)
+		self.db = pymongo.MongoClient(url)["BlockData"]
+		self.ref = self.db["ref"]
+		self.data = self.db["data"]
 
 
 
-	class Debug():
-		def __init__(self, ModelX):
-			self.ModelX = ModelX
-
-
-		blocks = [
-			"minecraft:air",
-			"minecraft:ore"
-		]
-
-		def random_block(self, name=None, x=None, y=None, z=None, meta=None):
-			if name is None:
-				name = random.choice(blocks)
-			if y is None:
-				y = random.randint(0, 0xFFFFFFFF)
-			if x is None:
-				x = random.randint(0, 0xFFFFFFFF)
-			if z is None:
-				z = random.randint(0, 0xFFFFFFFF)
-			if meta is None:
-				meta = random.randint(0, 255)
-			data = {
-				"name":name,
-				"y":y,
-				"z":z,
-				"meta":meta,
+	class Data():
+		def __init__(self, mod:str="default", block:str="default", color:str="#FF00FF"):
+			self.name = "{}:{}".format(mod, block)
+			self.mod = mod
+			self.block = block
+			self.color = color
+			self.json = {
+				"name": self.name,
+				"mod": self.mod,
+				"block": self.block,
+				"color": self.color
 			}
-			return [data, x]
 
-		def radius_count(self, radius):
-			def gc_2d(radius):
-				if radius == 0:
-					return 1
-				return radius * 4 + gc_2d(radius-1)
-			def gc_3d(origin, index):
-				if origin == index:
-					return gc_2d(index)
-				return gc_2d(index) * 2 + gc_3d(origin, index + 1)
-			return gc_3d(radius, 0)
+	def insert(self, data:Data):
+		objid = self.data.find_and_modify({"name":data.name}, data.json)
+		if not objid:
+			objid = self.data.insert_one(data.json)
+		return objid.inserted_id
+		
 
-		def fill_up(self, db:[str, pymongo.database.Database, pymongo.collection.Collection], radius=16):
-			len = self.radius_count(radius)
-			counter = 0
-			b = 0
-			sys.stdout.write("\rfill progress : 0%")
-			if type(db) == pymongo.collection.Collection:
-				for z in range(-(radius - abs(x)), radius - abs(x)):
-					for y in range(-(radius - (abs(x) + abs(z))), radius - (abs(x) + abs(z))):
-						data = Mongolo_ModelX.Debug.random_block(x=x, y=y, z=z)
-						ModelX.findNreplace(data, {"y":y, "z":z}, collection)
-						counter += 1
-						p = (counter / len) * 100
-						if b + 1 < p:
-							sys.stdout.write("\rfill progress : {}%".format(p))
-						
-						
-			elif type(db) == str:
-				db = self.ModelX.client[db]
-				for x in range(-radius, radius + 1):
-					collection = db[str(x)]
-					for z in range(-(radius - abs(x)), (radius + 1) - abs(x)):
-						for y in range(-(radius - (abs(x) + abs(z))), (radius + 1) - (abs(x) + abs(z))):
-							data = self.random_block(x=x, y=y, z=z)[0]
-							self.ModelX.findNreplace(data, {"y":y, "z":z}, collection)
-							counter += 1
-							p = (counter / len) * 100
-							if b + 1 < p:
-								b = int(p)
-								sys.stdout.write("\rfill progress : {}%".format(int(p)))
-			sys.stdout.write("\rfill progress : 100%\n")
-			return counter
+	def find(self, filter):
+		return list(self.data.find(filter))
 
+	def drop(self):
+		self.data.drop()
+		self.ref.drop()
 
-
-	def drop(self, db:[str, pymongo.database.Database, pymongo.collection.Collection]=None):
-		if type(db) == pymongo.collection.Collection:
-			db.drop()
-			return
-		if type(db) == str:
-			db = self.client[db]
-		for name in db.list_collection_names():
-			db.drop_collection(name)
-
-
-
-
-	def find(self, filter: dict, db:[str, pymongo.database.Database, pymongo.collection.Collection], id:bool=False):
-		#if db is a collection, no need for more querrys. low cost
-		if type(db) == pymongo.collection.Collection:
-			return db.find(filter)
-		if type(db) == str:
-			db = self.client[db]
-		finalData = []
-		if "x" in filter:
-			collection = db[str(filter["x"])]
-			del filter["x"]
-			print(filter)
-			r = collection.find(filter)
-			finalData += list(collection.find(filter))
-		else:
-			for name in db.list_collection_names():
-				collection = db[name]
-				finalData += list(collection.find(filter))
-		if id is False:
-			for data in finalData:
-				del data["_id"]
-		return finalData
-
-	def findNreplace(self, data: dict, filter: dict, db:[str, pymongo.database.Database, pymongo.collection.Collection]):
-		#if db is a collection, no need for more querrys. low cost
-		if type(db) == pymongo.collection.Collection:
-			if db.find_one_and_replace(filter, data) == None:
-				db.insert_one(data)
-			return
-		#get the database object
-		if type(db) == str:
-			db = self.client[db]
-		#if X is speficied in the filter, no need to search in all collections. low cost
-		if "x" in filter:
-			collection = db[str(filter["x"])]
-			del filter["x"]
-			if collection.find_one_and_replace(filter, data) == None:
-				collection.insert_one(data)
-		#else... meh. let's querry them all... warning : heavy cost
-		else:
-			for name in db.list_collection_names():
-				collection = db[name]
-				if collection.find_one_and_replace(filter, data) == None:
-					collection.insert_one(data)
-
-
-
-
-
-
-
-
-
-
-
+	def getBlocks(self, id:str=None, block:str=None, mod:str=None, name:str=None, color:str=None):
+		filter = {}
+		if id is not None:
+			filter["_id"] = id
+		if block is not None:
+			filter["block"] = block
+		if mod is not None:
+			filter["mod"] = mod
+		if name is not None:
+			filter["name"] = name
+		if color is not None:
+			filter["color"] = color
+		return self.data.find_one(filter)
 
 
 
@@ -331,15 +258,18 @@ class Mongolo_ModelChunk():
 
 		if type(chunks) == list:
 			for chunk in chunks:
+				if not (chunk.y >= 0 and chunk.y <= 15):
+					continue
 				chunk.connect(world)
 				chunk.db.drop()
 				chunk.db.insert_many(chunk.data)
 
-				counter += 1
-				p = (counter / len) * 100
-				if debug and b + 1 < p:
-					b = int(p)
-					sys.stdout.write("\rfill progress : {}%".format(b))
+				if debug:
+					counter += 1
+					p = (counter / len) * 100
+					if b + 1 < p:
+						b = int(p)
+						sys.stdout.write("\rfill progress : {}%".format(b))
 		else:
 			chunks.connect(world)
 			chunks.db.drop()
