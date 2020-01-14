@@ -1,5 +1,5 @@
 import socket
-from BasicDB import Mongolo_ModelChunk, testing
+from BasicDB import Mongolo_ModelChunk, debug_rebuildosef
 from inputs import get_gamepad
 import threading
 import asyncio
@@ -75,7 +75,9 @@ def debugRebuild():
 	if not request.json:
 		return "request not formated as JSON", 400
 	radius = request.json["radius"]
-	testing(radius)
+	if not radius:
+		return "\"radius\" not specified in the body", 400
+	debug_rebuildosef(radius)
 	return "ok", 200
 
 

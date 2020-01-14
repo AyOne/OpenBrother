@@ -8,6 +8,19 @@ import math
 
 
 
+
+def debug_rebuildosef(radius:int=3):
+	mongoloClient = Mongolo_ModelChunk("mongodb://localhost:27017/")
+	mongoloClient.drop("overworld")
+	t = time.time()
+	sys.stdout.write("\r{} chunk to be generated...".format(mongoloClient.debug.radius_countD(r)))
+	random_chunks = mongoloClient.debug.many_random(r)
+	sys.stdout.write("done ({}s)\n".format(time.time() - t))
+	t = time.time()
+	c = mongoloClient.replaceChunk(random_chunks, "overworld", True, r)
+	print("{} chunks ({} blocks) added to the database. in {}s".format(c, c * pow(16, 3), time.time() - t))
+
+
 def testing(r):
 
 	blockdata = Mongolo_BlockData()
@@ -26,17 +39,11 @@ def testing(r):
 	print(blockdata.getBlocks(a))
 	print(blockdata.getBlocks(b))
 
-	"""
-	mongoloClient = Mongolo_ModelChunk("mongodb://localhost:27017/")
-	mongoloClient.drop("overworld")
-	t = time.time()
-	sys.stdout.write("\r{} chunk to be generated...".format(mongoloClient.debug.radius_countD(r)))
-	random_chunks = mongoloClient.debug.many_random(r)
-	sys.stdout.write("done ({}s)\n".format(time.time() - t))
-	t = time.time()
-	c = mongoloClient.replaceChunk(random_chunks, "overworld", True, r)
-	print("{} chunks ({} blocks) added to the database. in {}s".format(c, c * pow(16, 3), time.time() - t))
-	"""
+
+
+
+
+
 
 
 
@@ -50,7 +57,6 @@ blocks += ["minecraft:redstoneOre"] * 2
 blocks += ["minecraft:lapisOre"] * 2
 blocks += ["minecraft:diamondOre"]
 blocks += ["minecraft:emeraldOre"]
-
 
 
 
