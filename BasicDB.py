@@ -2,7 +2,6 @@ import pymongo
 import time
 import re
 import random
-import unittest
 import sys
 import math
 from bson.objectid import ObjectId
