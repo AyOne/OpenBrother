@@ -12,7 +12,9 @@
     <OutputPath>.</OutputPath>
     <Name>OpenBrother</Name>
     <RootNamespace>OpenComputer-BigBrother</RootNamespace>
-    <InterpreterId>MSBuild|python_env|$(MSBuildProjectFullPath)</InterpreterId>
+    <InterpreterId>
+    </InterpreterId>
+    <SuppressEnvironmentCreationPrompt>True</SuppressEnvironmentCreationPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -27,17 +29,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="OpenBrother.py" />
-  </ItemGroup>
-  <ItemGroup>
-    <Interpreter Include="python_env\">
-      <Id>python_env</Id>
-      <Version>3.7</Version>
-      <Description>python_env (Python 3.7 (64-bit))</Description>
-      <InterpreterPath>Scripts\python.exe</InterpreterPath>
-      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
-      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
-      <Architecture>X64</Architecture>
-    </Interpreter>
   </ItemGroup>
   <ItemGroup>
     <Content Include="requirements.txt" />

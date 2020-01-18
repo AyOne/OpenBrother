@@ -1,5 +1,4 @@
 from BasicDB import Mongolo_ModelChunk, debug_rebuildChunks, debug_rebuildData
-from inputs import get_gamepad
 import pymongo
 import random
 import time
@@ -126,5 +125,5 @@ def debugRebuild():
 
 
 
-app.run(threaded=True)
+app.run(threaded=True, host="0.0.0.0", port="8190", debug=True)
 
