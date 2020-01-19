@@ -96,7 +96,6 @@ class Mongolo_BlockData():
 
 
 
-
 class Mongolo_ModelChunk():
 	def __init__(self, url:str="mongodb://localhost:27017/"):
 		self.client = pymongo.MongoClient(url)
@@ -112,16 +111,20 @@ class Mongolo_ModelChunk():
 
 		def createBlockList(self):
 			blocks = []
-			blocks += [str(self.blockdata.getBlocks(name="minecraft:air")[0]["_id"])] * 10
-			blocks += [str(self.blockdata.getBlocks(name="minecraft:stone")[0]["_id"])] * 10
-			blocks += [str(self.blockdata.getBlocks(name="minecraft:goldOre")[0]["_id"])] * 2
-			blocks += [str(self.blockdata.getBlocks(name="minecraft:coalOre")[0]["_id"])] * 5
-			blocks += [str(self.blockdata.getBlocks(name="minecraft:ironOre")[0]["_id"])] * 4
-			blocks += [str(self.blockdata.getBlocks(name="minecraft:redstoneOre")[0]["_id"])] * 2
-			blocks += [str(self.blockdata.getBlocks(name="minecraft:lapisOre")[0]["_id"])] * 2
-			blocks += [str(self.blockdata.getBlocks(name="minecraft:diamondOre")[0]["_id"])]
-			blocks += [str(self.blockdata.getBlocks(name="minecraft:emeraldOre")[0]["_id"])]
-			return blocks
+			while True:
+				try:
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:air")[0]["_id"])] * 10
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:stone")[0]["_id"])] * 10
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:goldOre")[0]["_id"])] * 2
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:coalOre")[0]["_id"])] * 5
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:ironOre")[0]["_id"])] * 4
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:redstoneOre")[0]["_id"])] * 2
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:lapisOre")[0]["_id"])] * 2
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:diamondOre")[0]["_id"])]
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:emeraldOre")[0]["_id"])]
+					return blocks
+				except IndexError as e:
+					debug_rebuildData()
 
 		def radius_count(self, radius):
 			def gc_2d(radius):
