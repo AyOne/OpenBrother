@@ -128,22 +128,22 @@ class Mongolo_ModelChunk():
 
 		def radius_count(self, radius):
 			def gc_2d(radius):
-				if radius == 0:
+				if radius <= 0:
 					return 1
-				return radius * 4 + gc_2d(radius-1)
+				return radius * 4 + gc_2d(radius - 1)
 			def gc_3d(origin, index):
-				if origin == index:
+				if origin <= index:
 					return gc_2d(index)
 				return gc_2d(index) * 2 + gc_3d(origin, index + 1)
 			return gc_3d(radius, 0) * 4096
 		
 		def radius_countD(self, radius):
 			def gc_2d(radius):
-				if radius == 0:
+				if radius <= 0:
 					return 1
-				return radius * 4 + gc_2d(radius-1)
+				return radius * 4 + gc_2d(radius - 1)
 			def gc_3d(origin, index):
-				if origin == index:
+				if origin <= index:
 					return gc_2d(index)
 				return gc_2d(index) * 2 + gc_3d(origin, index + 1)
 			return gc_3d(radius, 0)
