@@ -2,61 +2,38 @@ import pymongo
 import time
 import re
 import random
-import unittest
 import sys
 import math
+from bson.objectid import ObjectId
 
 
 
 
-def debug_rebuildosef(radius:int=3):
+def debug_rebuildChunks(radius:int=3):
 	mongoloClient = Mongolo_ModelChunk("mongodb://localhost:27017/")
 	mongoloClient.drop("overworld")
 	t = time.time()
-	sys.stdout.write("\r{} chunk to be generated...".format(mongoloClient.debug.radius_countD(r)))
-	random_chunks = mongoloClient.debug.many_random(r)
+	sys.stdout.write("\r{} chunk to be generated...".format(mongoloClient.debug.radius_countD(radius)))
+	random_chunks = mongoloClient.debug.many_random(radius)
 	sys.stdout.write("done ({}s)\n".format(time.time() - t))
 	t = time.time()
-	c = mongoloClient.replaceChunk(random_chunks, "overworld", True, r)
+	c = mongoloClient.replaceChunk(random_chunks, "overworld", True, radius)
 	print("{} chunks ({} blocks) added to the database. in {}s".format(c, c * pow(16, 3), time.time() - t))
 
 
-def testing(r):
+def debug_rebuildData():
 
 	blockdata = Mongolo_BlockData()
 	blockdata.drop()
-	a = blockdata.insert(Mongolo_BlockData.Data("minecraft", "air"))
-	b = blockdata.insert(Mongolo_BlockData.Data("minecraft", "stone"))
-	print(blockdata.insert(Mongolo_BlockData.Data("minecraft", "goldOre")))
-	print(blockdata.insert(Mongolo_BlockData.Data("minecraft", "coalOre")))
-	print(blockdata.insert(Mongolo_BlockData.Data("minecraft", "ironOre")))
-	print(blockdata.insert(Mongolo_BlockData.Data("minecraft", "redstoneOre")))
-	print(blockdata.insert(Mongolo_BlockData.Data("minecraft", "lapisOre")))
-	print(blockdata.insert(Mongolo_BlockData.Data("minecraft", "diamondOre")))
-	print(blockdata.insert(Mongolo_BlockData.Data("minecraft", "emeraldOre")))
-	print("ok")
-
-	print(blockdata.getBlocks(a))
-	print(blockdata.getBlocks(b))
-
-
-
-
-
-
-
-
-
-blocks = []
-blocks += ["minecraft:air"] * 10
-blocks += ["minecraft:stone"] * 10
-blocks += ["minecraft:goldOre"] * 2
-blocks += ["minecraft:coalOre"] * 5
-blocks += ["minecraft:ironOre"] * 4
-blocks += ["minecraft:redstoneOre"] * 2
-blocks += ["minecraft:lapisOre"] * 2
-blocks += ["minecraft:diamondOre"]
-blocks += ["minecraft:emeraldOre"]
+	blockdata.insert(Mongolo_BlockData.Data("minecraft", "air"))
+	blockdata.insert(Mongolo_BlockData.Data("minecraft", "stone"))
+	blockdata.insert(Mongolo_BlockData.Data("minecraft", "goldOre"))
+	blockdata.insert(Mongolo_BlockData.Data("minecraft", "coalOre"))
+	blockdata.insert(Mongolo_BlockData.Data("minecraft", "ironOre"))
+	blockdata.insert(Mongolo_BlockData.Data("minecraft", "redstoneOre"))
+	blockdata.insert(Mongolo_BlockData.Data("minecraft", "lapisOre"))
+	blockdata.insert(Mongolo_BlockData.Data("minecraft", "diamondOre"))
+	blockdata.insert(Mongolo_BlockData.Data("minecraft", "emeraldOre"))
 
 
 
@@ -100,7 +77,7 @@ class Mongolo_BlockData():
 	def getBlocks(self, id:str=None, block:str=None, mod:str=None, name:str=None, color:str=None):
 		filter = {}
 		if id is not None:
-			filter["_id"] = id
+			filter["_id"] = ObjectId(id)
 		if block is not None:
 			filter["block"] = block
 		if mod is not None:
@@ -109,8 +86,7 @@ class Mongolo_BlockData():
 			filter["name"] = name
 		if color is not None:
 			filter["color"] = color
-		return self.data.find_one(filter)
-
+		return list(self.data.find(filter))
 
 
 
@@ -123,31 +99,51 @@ class Mongolo_BlockData():
 class Mongolo_ModelChunk():
 	def __init__(self, url:str="mongodb://localhost:27017/"):
 		self.client = pymongo.MongoClient(url)
-		self.debug = self.Debug(self)
+		self.blockdata = Mongolo_BlockData()
+		self.debug = self.Debug(self, self.blockdata)
 
 
 	class Debug():
-		def __init__(self, ModelChunk):
+		def __init__(self, ModelChunk, blockdata):
 			self.ModelChunk = ModelChunk
+			self.blockdata = blockdata
+			self.blocks = self.createBlockList()
+
+		def createBlockList(self):
+			blocks = []
+			while True:
+				try:
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:air")[0]["_id"])] * 10
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:stone")[0]["_id"])] * 10
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:goldOre")[0]["_id"])] * 2
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:coalOre")[0]["_id"])] * 5
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:ironOre")[0]["_id"])] * 4
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:redstoneOre")[0]["_id"])] * 2
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:lapisOre")[0]["_id"])] * 2
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:diamondOre")[0]["_id"])]
+					blocks += [str(self.blockdata.getBlocks(name="minecraft:emeraldOre")[0]["_id"])]
+					return blocks
+				except IndexError as e:
+					debug_rebuildData()
 
 		def radius_count(self, radius):
 			def gc_2d(radius):
-				if radius == 0:
+				if radius <= 0:
 					return 1
-				return radius * 4 + gc_2d(radius-1)
+				return radius * 4 + gc_2d(radius - 1)
 			def gc_3d(origin, index):
-				if origin == index:
+				if origin <= index:
 					return gc_2d(index)
 				return gc_2d(index) * 2 + gc_3d(origin, index + 1)
 			return gc_3d(radius, 0) * 4096
 		
 		def radius_countD(self, radius):
 			def gc_2d(radius):
-				if radius == 0:
+				if radius <= 0:
 					return 1
-				return radius * 4 + gc_2d(radius-1)
+				return radius * 4 + gc_2d(radius - 1)
 			def gc_3d(origin, index):
-				if origin == index:
+				if origin <= index:
 					return gc_2d(index)
 				return gc_2d(index) * 2 + gc_3d(origin, index + 1)
 			return gc_3d(radius, 0)
@@ -155,7 +151,7 @@ class Mongolo_ModelChunk():
 
 		def random_block(self, name=None, x=None, y=None, z=None, meta=None):
 			if name is None:
-				name = random.choice(blocks)
+				name = random.choice(self.blocks)
 			if y is None:
 				y = random.randint(0, 0xFFFFFFFF)
 			if x is None:
@@ -273,7 +269,7 @@ class Mongolo_ModelChunk():
 		else:
 			chunks.connect(world)
 			chunks.db.drop()
-			chunks.db.insert_many(chunk["data"])
+			chunks.db.insert_many(chunks.data)
 
 		if debug:
 			sys.stdout.write("\rfill progress : 100%\n")

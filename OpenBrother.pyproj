@@ -12,7 +12,9 @@
     <OutputPath>.</OutputPath>
     <Name>OpenBrother</Name>
     <RootNamespace>OpenComputer-BigBrother</RootNamespace>
-    <InterpreterId>MSBuild|python_env|$(MSBuildProjectFullPath)</InterpreterId>
+    <InterpreterId>
+    </InterpreterId>
+    <SuppressEnvironmentCreationPrompt>True</SuppressEnvironmentCreationPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,24 +25,22 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="APIs\front.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="APIs\turtle.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="BasicDB.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="OpenBrother.py" />
   </ItemGroup>
   <ItemGroup>
-    <Interpreter Include="python_env\">
-      <Id>python_env</Id>
-      <Version>3.7</Version>
-      <Description>python_env (Python 3.7 (64-bit))</Description>
-      <InterpreterPath>Scripts\python.exe</InterpreterPath>
-      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
-      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
-      <Architecture>X64</Architecture>
-    </Interpreter>
+    <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="requirements.txt" />
+    <Folder Include="APIs\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
