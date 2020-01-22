@@ -42,3 +42,32 @@ def initTurtleAPI(app, mongoloClient):
 		for name in bufferData.keys():
 			finalData[mongoloClient.blockdata.getBlocks(id=name)[0]["name"]] = bufferData[name]
 		return finalData, 200
+
+
+
+	@app.route("/turtle/insertChunk", methods=["POST"])
+	def insertChunk_():
+		try:
+			world:str = request.values["dim"]
+			data:str = request.values["data"]
+		except Exception as e:
+			print(e)
+			return "one of the following isn't speficied in the data : \"data\" | \"dim\"", 400
+		coords, data = data.split("<", 1)
+		Cx, Cy, Cz = [int(c) for c in coords.split(" ", 2)]
+		data = data[0:-1]
+		data = data.split("|")
+		chunk = mongoloClient.Chunk(Cx, Cy, Cz, mongoloClient.client)
+		for d in data:
+			d = d.split(" ", 4)
+			block = {
+				"x":int(d[0]),
+				"y":int(d[1]),
+				"z":int(d[2]),
+				"name":d[3],
+				"meta":int(d[4]),
+			}
+			chunk.data.append(block)
+		mongoloClient.replaceChunk(chunk, world)
+		return "ok", 200
+

@@ -269,7 +269,7 @@ class Mongolo_ModelChunk():
 		else:
 			chunks.connect(world)
 			chunks.db.drop()
-			chunks.db.insert_many(chunk["data"])
+			chunks.db.insert_many(chunks.data)
 
 		if debug:
 			sys.stdout.write("\rfill progress : 100%\n")
