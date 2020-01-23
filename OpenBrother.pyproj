@@ -14,7 +14,6 @@
     <RootNamespace>OpenComputer-BigBrother</RootNamespace>
     <InterpreterId>
     </InterpreterId>
-    <SuppressEnvironmentCreationPrompt>True</SuppressEnvironmentCreationPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,22 +24,21 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="APIs\front.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="APIs\turtle.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="APIs\front.py" />
+    <Compile Include="APIs\turtle.py" />
     <Compile Include="BasicDB.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="OpenBrother.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="APIs\__pycache__\front.cpython-37.pyc" />
+    <Content Include="APIs\__pycache__\turtle.cpython-37.pyc" />
     <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="APIs\" />
+    <Folder Include="APIs\__pycache__\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

@@ -7,14 +7,32 @@ function HolderComponent() {
 	const axiosConfig = {
 		headers: {'Access-Control-Allow-Origin': '*'}
 	};
+	const [params, setParams] = useState(
+		{
+		chunks:[
+			{
+				x:2,
+				z:0
+			}
+		],
+		filter:{},
+		dim:"overworld",
+	});
 
-	const [data, setData] = useState(
-		axios.get('http://localhost:5000/listeTypeBlocks',axiosConfig)
+	const [data, refreshData] = useState(
+		axios.get('http://localhost:8190/front/listeTypeBlocks?',{
+			headers: {	'Access-Control-Allow-Origin': '*',
+						'Accept' : 'application/json'
+			},
+			body : params,
+		})
 		.then(response => {
+			console.log(params);
 			console.log(data);
 			return(response.data);
 		})
 		.catch(function (error) {
+			console.log(params);
 			console.log(error);
 		}));
 

@@ -19,6 +19,7 @@ def initFrontAPI(app, mongoloClient):
 
 	@app.route("/front/listeTypeBlocks")
 	def listTypeBlocks():
+		print(request.json)
 		if not request.json:
 			return "request not formated as JSON", 400
 		if "chunks" not in request.json:

@@ -37,6 +37,27 @@
     min-height: 100vh;
 }
 
+.Card {
+  background-color: #383c44;
+
+}
+
+.Card-content {
+  background-color: #282c34;
+  margin-block-start: 1rem;
+  border-radius: 0.5rem;
+}
+
+.Table {
+  margin: auto;
+  text-align: left;
+}
+
+.Container {
+  display : flex;
+  justify-content: space-evenly;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
