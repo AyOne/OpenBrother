@@ -3,7 +3,7 @@ import requests
 import json
 import random
 
-url = "http://localhost:8190/turtle"
+url = "http://localhost:8190"
 
 
 
@@ -30,8 +30,8 @@ def listeTypeBlocks():
 
 def getRef():
 	a = json.loads(requests.get("{}/getRef?data={}".format(url, json.dumps({"filter":{}}))).text)
-	print(a["data"])
-	return a["data"]
+	print(a)
+	return a["ref"]
 
 
 
@@ -55,13 +55,7 @@ def random_block(blocks=[], name=None, x=None, y=None, z=None, meta=None):
 	}
 	return data
 
-def random_chunk(blocks=[], x=None, y=None, z=None):
-	if x is None:
-		x = random.randint(0, 0xFFFFFFFF)
-	if y is None:
-		y = random.randint(0, 0xFFFFFFFF)
-	if z is None:
-		z = random.randint(0, 0xFFFFFFFF)
+def random_chunk(blocks):
 	data = []
 	for x_ in range(16):
 		for y_ in range(16):
@@ -79,16 +73,21 @@ def random_chunk(blocks=[], x=None, y=None, z=None):
 
 
 def insertChunk():
-	blocks = getRef()
+	refs = getRef()
+	blocks = []
+	for ref in refs:
+		blocks.append(ref["id"])
 	data = []
 	if blocks:
-		data = random_chunk(blocks, 100, 10, 100)
+		data = random_chunk(blocks)
 	print("???")
-	a = requests.get("{}/insertChunk?data={}".format(url, json.dumps({
+	jsondumps = json.dumps({
 			"chunk":{"x":100, "y":10, "z":100},
 			"data":data,
 			"dim":"overworld"
-		})))
+		})
+	print(len(jsondumps))
+	a = requests.post("{}/insertChunk?data={}".format(url, jsondumps))
 	print(a)
 
 
@@ -97,6 +96,6 @@ def insertChunk():
 
 input("press any key to continue...")
 
-#rebuild()
-#listeTypeBlocks()
+rebuild()
+listeTypeBlocks()
 insertChunk()

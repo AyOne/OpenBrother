@@ -48,20 +48,20 @@ class Mongolo_BlockData():
 
 
 	class Data():
-		def __init__(self, mod:str="default", block:str="default", color:str="#FF00FF"):
-			self.name = "{}:{}".format(mod, block)
+		def __init__(self, mod:str="default", name:str="default", color:str="#FF00FF"):
+			self.fullname = "{}:{}".format(mod, name)
 			self.mod = mod
-			self.block = block
+			self.name = name
 			self.color = color
 			self.json = {
-				"name": self.name,
+				"fullname": self.fullname,
 				"mod": self.mod,
-				"block": self.block,
+				"name": self.name,
 				"color": self.color
 			}
 
 	def insert(self, data:Data):
-		objid = self.data.find_and_modify({"name":data.name}, data.json)
+		objid = self.data.find_and_modify({"fullname":data.name}, data.json)
 		if not objid:
 			objid = self.data.insert_one(data.json)
 		return objid.inserted_id
@@ -74,17 +74,17 @@ class Mongolo_BlockData():
 		self.data.drop()
 		self.ref.drop()
 
-	def getBlocks(self, id:str=None, block:str=None, mod:str=None, name:str=None, color:str=None):
+	def getBlocks(self, id:str=None, name:str=None, mod:str=None, fullname:str=None, color:str=None):
 		filter = {}
-		if id is not None:
+		if id:
 			filter["_id"] = ObjectId(id)
-		if block is not None:
-			filter["block"] = block
-		if mod is not None:
-			filter["mod"] = mod
-		if name is not None:
+		if fullname:
+			filter["fullname"] = fullname
+		if name:
 			filter["name"] = name
-		if color is not None:
+		if mod:
+			filter["mod"] = mod
+		if color:
 			filter["color"] = color
 		return list(self.data.find(filter))
 
@@ -113,17 +113,19 @@ class Mongolo_ModelChunk():
 			blocks = []
 			while True:
 				try:
-					blocks += [str(self.blockdata.getBlocks(name="minecraft:air")[0]["_id"])] * 10
-					blocks += [str(self.blockdata.getBlocks(name="minecraft:stone")[0]["_id"])] * 10
-					blocks += [str(self.blockdata.getBlocks(name="minecraft:goldOre")[0]["_id"])] * 2
-					blocks += [str(self.blockdata.getBlocks(name="minecraft:coalOre")[0]["_id"])] * 5
-					blocks += [str(self.blockdata.getBlocks(name="minecraft:ironOre")[0]["_id"])] * 4
-					blocks += [str(self.blockdata.getBlocks(name="minecraft:redstoneOre")[0]["_id"])] * 2
-					blocks += [str(self.blockdata.getBlocks(name="minecraft:lapisOre")[0]["_id"])] * 2
-					blocks += [str(self.blockdata.getBlocks(name="minecraft:diamondOre")[0]["_id"])]
-					blocks += [str(self.blockdata.getBlocks(name="minecraft:emeraldOre")[0]["_id"])]
+					blocks += [str(self.blockdata.getBlocks(fullname="minecraft:air")[0]["_id"])] * 10
+					blocks += [str(self.blockdata.getBlocks(fullname="minecraft:stone")[0]["_id"])] * 10
+					blocks += [str(self.blockdata.getBlocks(fullname="minecraft:goldOre")[0]["_id"])] * 2
+					blocks += [str(self.blockdata.getBlocks(fullname="minecraft:coalOre")[0]["_id"])] * 5
+					blocks += [str(self.blockdata.getBlocks(fullname="minecraft:ironOre")[0]["_id"])] * 4
+					blocks += [str(self.blockdata.getBlocks(fullname="minecraft:redstoneOre")[0]["_id"])] * 2
+					blocks += [str(self.blockdata.getBlocks(fullname="minecraft:lapisOre")[0]["_id"])] * 2
+					blocks += [str(self.blockdata.getBlocks(fullname="minecraft:diamondOre")[0]["_id"])]
+					blocks += [str(self.blockdata.getBlocks(fullname="minecraft:emeraldOre")[0]["_id"])]
 					return blocks
 				except IndexError as e:
+					blocks = []
+					print(e)
 					debug_rebuildData()
 
 		def radius_count(self, radius):
@@ -161,7 +163,7 @@ class Mongolo_ModelChunk():
 			if meta is None:
 				meta = random.randint(0, 255)
 			data = {
-				"name":name,
+				"fullname":name,
 				"y":y,
 				"z":z,
 				"x":x,
@@ -304,10 +306,10 @@ class Mongolo_ModelChunk():
 				chunk = db[name]
 				data = list(chunk.find(filter))
 				for block in data:
-					if block["name"] in finalData:
-						finalData[block["name"]] += 1
+					if block["fullname"] in finalData:
+						finalData[block["fullname"]] += 1
 					else:
-						finalData[block["name"]] = 1
+						finalData[block["fullname"]] = 1
 		return finalData
 
 

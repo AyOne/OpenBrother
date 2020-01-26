@@ -12,58 +12,14 @@ def initTurtleAPI(app, mongoloClient):
 	def debugRebuild_():
 		try:
 			data = json.loads(request.values["data"])
-			radius = data["radius"]
 		except Exception as e:
 			print(e)
 			return "", 400
 
+		radius = data["radius"]
 		debug_rebuildData()
 		debug_rebuildChunks(radius)
 		return "ok", 200
-
-
-
-	@app.route("/turtle/IDtoBLOCK", methods=["POST", "GET"])
-	def id_to_block_():
-		try:
-			data = json.loads(request.values["data"])
-			blocks = mongoloClient.blockdata.getBlocks(id=data["id"])
-		except Exception as e:
-			print(e)
-			return "", 400
-
-		for b in blocks:
-			b["id"] = str(b["_id"])
-			del b["_id"]
-		if len(blocks) > 0:
-			return blocks[0], 200
-		return {}, 200
-
-
-
-	@app.route("/turtle/BLOCKtoID", methods=["POST", "GET"])
-	def block_to_id_():
-		try:
-			data = json.loads(request.values["data"])
-			data_ = data["data"]
-		except Exception as e:
-			print(e)
-			return "", 400
-
-		if "name" in data_:
-			block_name = data_["name"]
-		elif "block" in data_ and "mod" in data_:
-			block_name = "{}:{}".format(data_["block"], data_["mod"])
-		else:
-			return "", 400
-
-		blocks = mongoloClient.blockdata.getBlocks(name=block_name)
-		for b in blocks:
-			b["id"] = str(b["_id"])
-			del b["_id"]
-		if len(blocks) > 0:
-			return blocks[0], 200
-		return {}, 200
 
 
 	@app.route("/turtle/getRef", methods=["POST", "GET"])
@@ -133,3 +89,26 @@ def initTurtleAPI(app, mongoloClient):
 		mongoloClient.replaceChunk(chunk, world)
 		return "ok", 200
 
+	@app.route("front/identify")
+	def identidy():
+		try:
+			data =  request.values["data"]
+		except Exception as e:
+			print(e)
+			return "",  400
+		if "name" in data and "mod" in data:
+			blocks = mongoloClient.blockdata.getBlocks(name="{}:{}".format(data["name"], data["mod"]))
+		elif "fullname" in data:
+			blocks = mongoloClient.blockdata.getBlocks(fullname=data["fullname"])
+		elif "id" in data:
+			blocks = mongoloClient.blockdata.getBlocks(id=data["id"])
+		else:
+			return "", 400
+
+		for b in blocks:
+			b["id"] = str(b["_id"])
+			del b["_id"]
+
+		if len(blocks) > 0:
+			return blocks, 200
+		return {}, 200
