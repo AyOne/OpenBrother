@@ -24,8 +24,15 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="APIs\front.py" />
-    <Compile Include="APIs\turtle.py" />
+    <Compile Include="APIs\DataAPI.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="APIs\front.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="APIs\turtle.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="BasicDB.py">
       <SubType>Code</SubType>
     </Compile>

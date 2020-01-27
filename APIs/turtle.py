@@ -11,28 +11,45 @@ def initTurtleAPI(app, mongoloClient):
 	@app.route("/turtle/debug/rebuild", methods=["POST", "GET"])
 	def debugRebuild_():
 		try:
-			radius = int(request.values["radius"])
+			data = json.loads(request.values["data"])
 		except Exception as e:
-			return "\"radius\" not specified in the data", 400
+			print(e)
+			return "", 400
+
+		radius = data["radius"]
 		debug_rebuildData()
 		debug_rebuildChunks(radius)
 		return "ok", 200
 
 
+	@app.route("/turtle/getRef", methods=["POST", "GET"])
+	def getRef_():
+		try:
+			data = json.loads(request.values["data"])
+		except Exception as e:
+			print(e)
+			return "", 400
+		a = list(mongoloClient.blockdata.find(data["filter"]))
+		for b in a:
+			b["id"] = str(b["_id"])
+			del b["_id"]
+		return {"data":a}, 200
 
 
 	@app.route("/turtle/listeTypeBlocks", methods=["POST", "GET"])
 	def listTypeBlocks_():
 		try:
-			chunks = json.loads(request.values["chunks"])
-			filter = json.loads(request.values["filter"])
-			world = request.values["dim"]
+			data = json.loads(request.values["data"])
+			chunks = data["chunks"]
+			filter = data["filter"]
+			world = data["dim"]
 		except Exception as e:
 			print(e)
-			return "one of the following isn't speficied in the data : \"chunks\" | \"filter\" | \"dim\"", 400
+			return "", 400
+		
 		bufferData = {}
 		for chunk in chunks:
-			buffer = mongoloClient.bigFind({}, world, chunk)
+			buffer = mongoloClient.bigFind(filter, world, chunk)
 			for b in buffer.keys():
 				if b in bufferData:
 					bufferData[b] += buffer[b]
@@ -48,26 +65,50 @@ def initTurtleAPI(app, mongoloClient):
 	@app.route("/turtle/insertChunk", methods=["POST"])
 	def insertChunk_():
 		try:
-			world:str = request.values["dim"]
-			data:str = request.values["data"]
+			data = json.loads(request.values["data"])
+			world = data["dim"]
+			chunk = data["chunk"]
+			data_ = data["data"]
 		except Exception as e:
 			print(e)
-			return "one of the following isn't speficied in the data : \"data\" | \"dim\"", 400
-		coords, data = data.split("<", 1)
-		Cx, Cy, Cz = [int(c) for c in coords.split(" ", 2)]
-		data = data[0:-1]
-		data = data.split("|")
-		chunk = mongoloClient.Chunk(Cx, Cy, Cz, mongoloClient.client)
-		for d in data:
-			d = d.split(" ", 4)
+			return "", 400
+
+		chunk = mongoloClient.Chunk(chunk["x"], chunk["y"], chunk["z"], mongoloClient.client)
+		if count(data_) != 4096:
+			return "", 400
+		
+		for d in data_:
 			block = {
-				"x":int(d[0]),
-				"y":int(d[1]),
-				"z":int(d[2]),
-				"name":d[3],
-				"meta":int(d[4]),
+				"x":d["x"],
+				"y":d["y"],
+				"z":d["z"],
+				"name":d["name"],
+				"meta":d["meta"],
 			}
 			chunk.data.append(block)
 		mongoloClient.replaceChunk(chunk, world)
 		return "ok", 200
 
+	@app.route("front/identify")
+	def identidy():
+		try:
+			data =  request.values["data"]
+		except Exception as e:
+			print(e)
+			return "",  400
+		if "name" in data and "mod" in data:
+			blocks = mongoloClient.blockdata.getBlocks(name="{}:{}".format(data["name"], data["mod"]))
+		elif "fullname" in data:
+			blocks = mongoloClient.blockdata.getBlocks(fullname=data["fullname"])
+		elif "id" in data:
+			blocks = mongoloClient.blockdata.getBlocks(id=data["id"])
+		else:
+			return "", 400
+
+		for b in blocks:
+			b["id"] = str(b["_id"])
+			del b["_id"]
+
+		if len(blocks) > 0:
+			return blocks, 200
+		return {}, 200

@@ -5,11 +5,11 @@ from BasicDB import Mongolo_ModelChunk, debug_rebuildChunks, debug_rebuildData
 def initFrontAPI(app, mongoloClient):
 	@app.route("/front/debug/rebuild", methods=["POST"])
 	def debugRebuild():
-		if not request.json:
-			return "request not formated as JSON", 400
-		if "radius" not in  request.json:
-			return "\"radius\" not specified in the body", 400
-		radius = request.json["radius"]
+		try:
+			data =  request.values["data"]
+		except Exception as e:
+			return "", 400
+		radius = data["radius"]
 		debug_rebuildData()
 		debug_rebuildChunks(radius)
 		return "ok", 200
@@ -17,20 +17,16 @@ def initFrontAPI(app, mongoloClient):
 
 
 
-	@app.route("/front/listeTypeBlocks")
+	@app.route("/front/listeTypeBlocks", methods=["GET"])
 	def listTypeBlocks():
-		print(request.json)
-		if not request.json:
-			return "request not formated as JSON", 400
-		if "chunks" not in request.json:
-			return "\"chunk\" not specified in the body", 400
-		chunks = request.json["chunks"]
-		if "filter" not in request.json:
-			return "\"filter\" not specified in the body", 400
-		filter = request.json["filter"]
-		if "dim" not in  request.json:
-			return "\"dim\" not speficied in the body", 400
-		world = request.json["dim"]
+		try:
+			data =  request.values["data"]
+		except Exception as e:
+			print(e)
+			return "",  400
+		chunk = data["chunk"]
+		filter = data["filter"] or {}
+		world = data["dim"] or "overworld"
 		bufferData = {}
 		for chunk in chunks:
 			buffer = mongoloClient.bigFind({}, world, chunk)
@@ -41,44 +37,30 @@ def initFrontAPI(app, mongoloClient):
 					bufferData[b] = buffer[b]
 		finalData = {}
 		for name in bufferData.keys():
-			finalData[mongoloClient.blockdata.getBlocks(id=name)[0]["name"]] = bufferData[name]
+			finalData[mongoloClient.blockdata.getBlocks(id=name)[0]["fullname"]] = bufferData[name]
 		return finalData, 200
 
-	@app.route("/front/IDtoBLOCK")
-	def id_to_block():
-		if not request.json:
-			return "request not formated as JSON", 400
-		if "id" not in request.json:
-			return "\"id\" not specified in the body", 400
-		blocks = mongoloClient.blockdata.getBlocks(id=request.json["id"])
-		for b in blocks:
-			b["id"] = str(b["_id"])
-			del b["_id"]
-		if len(blocks) > 0:
-			return blocks[0], 200
-		return {}, 200
 
-
-	@app.route("/front/BLOCKtoID")
-	def block_to_id():
-		if not request.json:
-			return "request not formated as JSON", 400
-		if "data" not in request.json:
-			return "\"data\" not specified in the body", 400
-
-		block_name = None
-		if "name" in request.json["data"]:
-			block_name = request.json["data"]["name"]
-		elif "block" in request.json["data"] and "mod" in request.json["data"]:
-			block_name = "{}:{}".format(request.json["data"]["mod"], request.json["data"]["block"])
+	@app.route("front/identify")
+	def identidy():
+		try:
+			data =  request.values["data"]
+		except Exception as e:
+			print(e)
+			return "",  400
+		if "name" in data and "mod" in data:
+			blocks = mongoloClient.blockdata.getBlocks(name="{}:{}".format(data["name"], data["mod"]))
+		elif "fullname" in data:
+			blocks = mongoloClient.blockdata.getBlocks(fullname=data["fullname"])
+		elif "id" in data:
+			blocks = mongoloClient.blockdata.getBlocks(id=data["id"])
 		else:
-			return "data not formated as intented", 400
+			return "", 400
 
-		blocks = mongoloClient.blockdata.getBlocks(name=block_name)
 		for b in blocks:
 			b["id"] = str(b["_id"])
 			del b["_id"]
-		if len(blocks) > 0:
-			return blocks[0], 200
-		return {}, 200
 
+		if len(blocks) > 0:
+			return blocks, 200
+		return {}, 200
