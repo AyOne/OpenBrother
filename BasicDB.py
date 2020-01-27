@@ -163,7 +163,7 @@ class Mongolo_ModelChunk():
 			if meta is None:
 				meta = random.randint(0, 255)
 			data = {
-				"fullname":name,
+				"blockID":name,
 				"y":y,
 				"z":z,
 				"x":x,
@@ -306,10 +306,10 @@ class Mongolo_ModelChunk():
 				chunk = db[name]
 				data = list(chunk.find(filter))
 				for block in data:
-					if block["fullname"] in finalData:
-						finalData[block["fullname"]] += 1
+					if block["blockID"] in finalData:
+						finalData[block["blockID"]] += 1
 					else:
-						finalData[block["fullname"]] = 1
+						finalData[block["blockID"]] = 1
 		return finalData
 
 

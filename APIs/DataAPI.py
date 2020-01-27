@@ -69,18 +69,28 @@ def initDataAPI(app, mongoloClient):
 		world = data["dim"]
 		chunk = data["chunk"]
 		data_ = data["data"]
+		blocks = []
 		chunk = mongoloClient.Chunk(chunk["x"], chunk["y"], chunk["z"], mongoloClient.client)
-		if len(data_) != 4096:
+
+
+
+
+
+		for id in data_.keys():
+			for b in data_[id]:
+				block = {
+					"x":b["x"],
+					"y":b["y"],
+					"z":b["z"],
+					"name":id,
+					"meta":b["meta"],
+				}
+				chunk.data.append(block)
+		if len(chunk.data) != 4096:
 			return "", 400
-		for d in data_:
-			block = {
-				"x":d["x"],
-				"y":d["y"],
-				"z":d["z"],
-				"name":d["name"],
-				"meta":d["meta"],
-			}
-			chunk.data.append(block)
+
+
+
 		mongoloClient.replaceChunk(chunk, world)
 		return "ok", 200
 

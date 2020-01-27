@@ -30,5 +30,5 @@ def hello():
 #initFrontAPI(app, mongoloClient)
 #initTurtleAPI(app, mongoloClient)
 initDataAPI(app, mongoloClient)
-app.run(threaded=True, host="0.0.0.0", port="8190", debug=True)
+app.run(threaded=True, host="0.0.0.0", port="8190", debug=False)
 
