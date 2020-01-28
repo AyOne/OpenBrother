@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import './App.css';
 import {RadialBarChart, RadialBar, Legend, Tooltip, PieChart, Pie} from 'recharts';
@@ -12,33 +12,37 @@ import TableComponent from "./components/utils/TableComponent";
 import axios from "axios";
 
 
+
 function App() {
 
-	const data02 = [
-		{name: "iron", value: 100, color: "#ccc", prout: 10},
-		{name: "redstone", value: 300, color: "#C00", prout: 10},
-		{name: "gold", value: 100, color: "#CC0", prout: 10},
-		{name: "diamond", value: 80, color: "#00C", prout: 11},
-		{name: "coal", value: 40, color: "#000", prout: 11},
-		{name: "air", value: 30, color: "#FFF"},
-		{name: "stone", value: 50, color: "#CCC"},
-	];
-	const axiosConfig = {
-		headers: {'Access-Control-Allow-Origin': '*'}
-	};
+	const [data02, setData] = useState([
+		{name: "iron", value: 100, color: "#ccc", visibility: true},
+		{name: "redstone", value: 300, color: "#C00", visibility: true},
+		{name: "gold", value: 100, color: "#CC0", visibility: true},
+		{name: "diamond", value: 80, color: "#00C", visibility: false},
+		{name: "coal", value: 40, color: "#000", visibility: false},
+		{name: "air", value: 30, color: "#FFF", visibility: true},
+		{name: "stone", value: 50, color: "#CCC", visibility: true},
+	]);
+
+	const [data, refreshData] = useState();
 	const [params, setParams] = useState({
-			data: {
-				chunks: [
-					{
-						x: 2,
-						z: 0
-					}
-				],
-				filter: {},
-				dim: "overworld",
-			}
-		});
-	const [data, refreshData] = useState(axios.get('http://localhost:8190/listeTypeBlocks?', {
+		data: {
+			chunks: [
+				{
+					x: 2,
+					z: 0
+				}
+			],
+			filter: {},
+			dim: "overworld",
+		}
+	});
+
+	useEffect(() => {
+		// code to run on component mount
+		console.log("Effect");
+		axios.get('http://localhost:8190/listeTypeBlocks?', {
 			headers: {
 				'Access-Control-Allow-Origin': '*',
 				'Accept': 'application/json'
@@ -46,14 +50,22 @@ function App() {
 			params: params,
 		})
 			.then(response => {
-				console.log(params);
-				console.log(data);
-				return (response.data);
+				console.log("params",params);
+				console.log("data", response.data);
+		//		const tmp = response.data.map();
+				console.log("tmp", Object.keys(response.data));
+				refreshData(response.data);
 			})
 			.catch(function (error) {
 				console.log(params);
 				console.log(error);
-			}));
+			})
+		}, []);
+
+	const changeData = (value) =>{
+		console.log("TESt", value);
+		setData(value);
+	};
 
 	return (
 		<div className="App-content">
@@ -63,7 +75,7 @@ function App() {
 						<div>
 							<PieComponent radius={150} thickness={20} data={data02} borderSize={10}
 										  borderColor={"black"}/>
-							<TableComponent data={data02}/>
+							<TableComponent data={data02} onChange={changeData} visibility="visibility"/>
 						</div>
 					</CardContent>
 				</Card>

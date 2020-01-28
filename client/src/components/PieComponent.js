@@ -2,8 +2,19 @@ import * as React from "react";
 import {Pie, PieChart} from "recharts";
 import Cell from "recharts/es6/component/Cell";
 
+const buildPie = (data) => {
+	return data.reduce((t, e) => {
+		if (e.visibility)
+		{
+			t.push(e);
+		}
+		return t;
+	}, []);
+};
+
 function PieComponent({data, radius, thickness, borderSize, borderColor}) {
 
+	data = buildPie(data);
 	console.log(data);
 	// reducing total value
 	const totalValue = data.reduce((t, {value}) => t + value, 0);
@@ -21,6 +32,8 @@ function PieComponent({data, radius, thickness, borderSize, borderColor}) {
 				Ores
 			</text>
 			<Pie
+				animationDuration={1000}
+				animationBegin={0}
 				dataKey="value"
 				nameKey="name"
 				data={data}
