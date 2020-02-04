@@ -2,6 +2,12 @@
   text-align: center;
 }
 
+:root {
+  --main-bg-r : 16;
+  --main-bg-g : 16;
+  --main-bg-b : 16;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -18,7 +24,7 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #000;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -33,25 +39,22 @@
 }
 
 .App-content {
-    background-color: #282c34;
+    background-color: #111;
     min-height: 100vh;
 }
 
 .Card {
-  background-color: #383c44;
-
+  background-color: rgba(255,255,255, 0.02);
+  padding: 1rem;
+  border-radius: 0.5rem;
 }
 
 .Card-content {
-  background-color: #282c34;
   margin-block-start: 1rem;
   border-radius: 0.5rem;
 }
 
-.Table {
-  margin: auto;
-  text-align: left;
-}
+
 
 .Container {
   display : flex;
@@ -65,4 +68,48 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.Store {
+  position: sticky;
+  background-color: #F0F;
+  width: 20rem;
+  text-align: center;
+  height: 100vh;
+  float : right;
+}
+
+.Store-button-hide {
+  position: sticky;
+  background-color: #00F;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 2rem;
+  height: 3rem;
+  float: right;
+
+  animation-name: hide;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate-reverse;
+}
+
+.Store-hide {
+
+  background-color: #F0F;
+  width: 20rem;
+  text-align: center;
+  height: 100vh;
+  float : right;
+
+  animation-name: hide;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes hide {
+  0% {transform: translate(0rem)}
+  100% {transform: translate(20rem)}
 }

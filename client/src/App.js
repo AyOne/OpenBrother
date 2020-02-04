@@ -1,16 +1,9 @@
 import React, {useEffect, useState} from 'react';
 
-import './App.css';
-import {RadialBarChart, RadialBar, Legend, Tooltip, PieChart, Pie} from 'recharts';
-import Cell from "recharts/es6/component/Cell";
-import HolderComponent from "./components/HolderComponent";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
+import './App.css'
 import PieComponent from "./components/PieComponent";
-import {Container} from "@material-ui/core";
 import TableComponent from "./components/utils/TableComponent";
 import axios from "axios";
-
 
 
 function App() {
@@ -50,9 +43,9 @@ function App() {
 			params: params,
 		})
 			.then(response => {
-				console.log("params",params);
+				console.log("params", params);
 				console.log("data", response.data);
-		//		const tmp = response.data.map();
+				//		const tmp = response.data.map();
 				console.log("tmp", Object.keys(response.data));
 				refreshData(response.data);
 			})
@@ -60,27 +53,38 @@ function App() {
 				console.log(params);
 				console.log(error);
 			})
-		}, []);
+	}, []);
 
-	const changeData = (value) =>{
+	const changeData = (value) => {
 		console.log("TESt", value);
 		setData(value);
 	};
 
 	return (
 		<div className="App-content">
+			<div style={{overflow: "hidden", float: "right", alignSelf: "right", position:"relative"}}>
+				<div className="Store-hide">
+					sdkfjskfjsd
+				</div>
+				<div className="Store-button-hide">
+					<div> ></div>
+				</div>
+			</div>
 			<div className="Container">
-				<Card className="Card-content">
-					<CardContent className="Card">
+				<div className="Card-content">
+					<div className="Card">
 						<div>
 							<PieComponent radius={150} thickness={20} data={data02} borderSize={10}
 										  borderColor={"black"}/>
 							<TableComponent data={data02} onChange={changeData} visibility="visibility"/>
 						</div>
-					</CardContent>
-				</Card>
-					<button onClick={() => {axios.get('http://localhost:8190/debug/rebuild?', {params : {data:{radius : 2}}}).then(r => console.log(r)).catch(e => console.log(e))}}/>
+					</div>
+				</div>
+				<button onClick={() => {
+					axios.get('http://localhost:8190/debug/rebuild?', {params: {data: {radius: 2}}}).then(r => console.log(r)).catch(e => console.log(e))
+				}}/>
 			</div>
+
 		</div>
 
 
