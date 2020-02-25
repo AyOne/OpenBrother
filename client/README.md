@@ -30,9 +30,9 @@ This component is made for visualize statistic data (PieChart).
 ![](./ReadmeRessources/SortingTable.gif)
 </td>
 <td>
-<strong>Sorting Table</strong>
+<strong>Visibility</strong>
 
-![](./ReadmeRessources/SortingTable.gif)
+![](./ReadmeRessources/Visibility.gif)
 </td>
 </tr>
 </table>
