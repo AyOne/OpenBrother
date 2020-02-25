@@ -4,24 +4,38 @@
     text-align: center;
     vertical-align: center;
     border-collapse: collapse;
+    border-radius: 1rem;
 }
 
 tr:nth-child(even) {background-color: rgba(255,255,255, 0.1);}
 
-.Table-head {
-    background-color: rgba(255,255,255, 0.7);;
+.Table-head tr:first-child th:first-child{
+    border-top-left-radius: 1rem;
+    background-color: rgba(255,255,255, 0.3);
     color : black;
     text-align: center;
-    border-radius: 10rem;
-
+}
+.Table-head tr:first-child th:last-child{
+    border-top-right-radius: 1rem;
+    background-color: rgba(255,255,255, 0.3);
+    color : black;
+    text-align: center;
+}
+.Table-head tr:first-child th{
+    background-color: rgba(255,255,255, 0.3);
+    color : black;
+    text-align: center;
 }
 
-.Table-head tr:first-child th:first-child { border-top-left-radius: 10px}
-.Table-head tr:first-child th:last-child { border-top-right-radius: 10px}
-.Table tbody tr:last-child th:first-child { border-bottom-left-radius: 10px}
-.Table tbody tr:last-child th:last-child { border-bottom-right-radius: 10px}
-
-.Table-head th:hover{
-    background-color: rgba(255,255,255, 0.7);
+.Table-head tr:first-child th:hover{
+    background-color: whitesmoke;
 }
 
+.Head-text {
+    cursor: default;
+}
+
+.Arrow {
+    vertical-align: middle;
+    display: inline-block;
+}

@@ -70,46 +70,49 @@
   }
 }
 
-.Store {
-  position: sticky;
-  background-color: #F0F;
-  width: 20rem;
-  text-align: center;
-  height: 100vh;
-  float : right;
-}
-
 .Store-button-hide {
+  border-right: 3rem solid;
+  border-top: 2rem solid transparent;
+  border-bottom: 2rem solid transparent;
   position: sticky;
-  background-color: #00F;
   display: flex;
   align-items: center;
-  justify-content: space-around;
   width: 2rem;
   height: 3rem;
   float: right;
-
-  animation-name: hide;
-  animation-duration: 3s;
-  animation-iteration-count: infinite;
-  animation-direction: alternate-reverse;
+  right: 0;
 }
 
-.Store-hide {
-
+.Store {
   background-color: #F0F;
   width: 20rem;
   text-align: center;
   height: 100vh;
+  position: sticky;
   float : right;
-
-  animation-name: hide;
-  animation-duration: 3s;
-  animation-iteration-count: infinite;
-  animation-direction: alternate-reverse;
 }
 
+.Wrapper {
+  transition: transform .5s;
+}
+
+.Store-hide {
+  animation-name: hide;
+  animation-duration: 1s;
+}
+
+.Store-show {
+  animation-name: show;
+  animation-duration: 1s;
+}
+
+
 @keyframes hide {
-  0% {transform: translate(0rem)}
-  100% {transform: translate(20rem)}
+  from {}
+  to {transform: translate(20rem)}
+}
+
+@keyframes show {
+  from {}
+  to {transform: translate(-20rem)}
 }

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {createRef, useEffect, useRef, useState} from 'react';
 
 import './App.css'
 import PieComponent from "./components/PieComponent";
@@ -31,7 +31,10 @@ function App() {
 			dim: "overworld",
 		}
 	});
-
+	const [slider, setSlider] = useState(true);
+	const [style, setStyle] = useState({
+		transform : "translate(0rem)",
+	});
 	useEffect(() => {
 		// code to run on component mount
 		console.log("Effect");
@@ -60,14 +63,27 @@ function App() {
 		setData(value);
 	};
 
+	const wrapperRef = useRef();
+
+	const trigger = () => {
+		wrapperRef.current.valueOf().classList.toggle('hide');
+	};
+
+	const hide = () => {
+		setSlider(!slider);
+		slider ? setStyle({transform: "translate(20rem)"}) : setStyle({transform: "translate(0rem)"});
+	};
+
 	return (
 		<div className="App-content">
 			<div style={{overflow: "hidden", float: "right", alignSelf: "right", position:"relative"}}>
-				<div className="Store-hide">
-					sdkfjskfjsd
-				</div>
-				<div className="Store-button-hide">
-					<div> ></div>
+				<div className={"Wrapper"} style={style}>
+					<div className={"Store"}>
+						sdkfjskfjsd
+					</div>
+					<div className="Store-button-hide" onClick={hide}>
+						<div>></div>
+					</div>
 				</div>
 			</div>
 			<div className="Container">
