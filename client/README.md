@@ -22,7 +22,17 @@ It uses video games data (in this case Minecraft) provided by an API (OpenBrothe
 ### PieCardComponent
 
 This component is made for visualize statistic data (PieChart).
-
-**Sorting Table**
+<table>
+<tr>
+<td>
+<strong>Sorting Table</strong>
 
 ![](./ReadmeRessources/SortingTable.gif)
+</td>
+<td>
+<strong>Sorting Table</strong>
+
+![](./ReadmeRessources/SortingTable.gif)
+</td>
+</tr>
+</table>
