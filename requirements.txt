@@ -1,12 +1,3 @@
-bson
-Click
-Flask
-Flask-Cors
-itsdangerous
-Jinja2
-MarkupSafe
-pip
+flask
 pymongo
-setuptools
-six
-Werkzeug
+flask_cors

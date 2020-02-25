@@ -15,6 +15,7 @@
     <InterpreterId>
     </InterpreterId>
     <SuppressEnvironmentCreationPrompt>True</SuppressEnvironmentCreationPrompt>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -28,10 +29,7 @@
     <Compile Include="APIs\DataAPI.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="APIs\front.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="APIs\turtle.py">
+    <Compile Include="APIs\turtleAPI.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="BasicDB.py">
@@ -40,6 +38,7 @@
     <Compile Include="OpenBrother.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DroneBios_debug.source.lua" />
     <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>
