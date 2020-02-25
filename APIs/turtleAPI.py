@@ -88,13 +88,13 @@ class ClientThread(Thread):
 
 	def setStatusText(self, text):
 		pkg = bytearray([0x01, len(str(text))])
-		pkg += bytearray(str(text))
+		pkg += bytearray(str(text), "utf-8")
 		self.client.send(pkg)
 
 	def move(self, x, y, z):
 		msg = "{}|{}|{}".format(x, y, z)
 		pkg = bytearray([0x02, len(msg)])
-		pkg += bytearray(msg)
+		pkg += bytearray(msg, "utf-8")
 		self.client.send(pkg)
 		pkg = self.client.recv(64)
 		if pkg != b"ok":
@@ -114,9 +114,9 @@ class ClientThread(Thread):
 	def scanContentsAt(self, x, y, z):
 		msg = "{}|{}|{}".format(x, y, z)
 		pkg = bytearray([0x05, len(msg)])
-		pkg += bytearray(msg)
+		pkg += bytearray(msg, "utf-8")
 		self.client.send(pkg)
-		pkg =  self.client.recv(64)
+		pkg = self.client.recv(64)
 		if pkg != b"ok":
 			raise("scan not ok")
 
