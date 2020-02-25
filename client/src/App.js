@@ -5,7 +5,6 @@ import PieComponent from "./components/PieComponent";
 import TableComponent from "./components/utils/TableComponent";
 import axios from "axios";
 
-
 function App() {
 
 	const [data02, setData] = useState([

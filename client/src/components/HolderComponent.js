@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
 
@@ -46,3 +47,5 @@ function HolderComponent() {
 }
 
 export default HolderComponent;
+=======
+>>>>>>> origin
