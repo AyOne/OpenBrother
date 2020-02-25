@@ -1,58 +1,14 @@
---[[
-socket:
-0x00 : close
+local internet = component.proxy(component.list("internet")())
+local drone = component.proxy(component.list("drone")())
 
-drone:
-0x01 : setStatusText(string)
-0x02 : move(x, y, z)
-0x03 : getOffset()
-0x04 : setLightColor(0xRRGGBB)
-
-debug:
-0x05 : scanContentsAt(...)
-
-
-
-0xFF : ping - pong
-
-
-pseudo code:
-while true
-	wait until (data = socket.recv()) return
-	if data[0] = 0x00 then
-		reset socket and restart loop
-	if data[0] = 0x01 then
-		setStatusText(...)
-	if data[0] = 0x02 then
-		wait until (move(...)) return and destination = coords
-		socket.send(arrived)
-	if data[0] = 0x03 then
-		socket.send(drone.getOffset())
-	if data[0] = 0x04 then
-		setlightcolor(...)
-	if data[0] = 0x05 then
-		return debug.scan(...)
-	else
-		restart loop
-	end
+print = function(text)
+	return text
 end
---]]
-
-
-
-local internet = require("component").internet
-local computer = require("computer")
-local drone = require("robot")
-
 
 local x, y, z = 0, 0, 0
 
 drone.getOffset = function()
 	return {x=x, y=y, z=z}
-end
-
-drone.setStatusText = function(msg)
-	print("set status : "..msg)
 end
 
 

@@ -41,6 +41,7 @@ class ServerThread(Thread):
 				continue
 			cthread.start()
 			self.cleaner.add(cthread)
+			del cthread, client, addr
 		self.sock.close()
 		self.cleaner.stop()
 		self.cleaner.join()
@@ -165,6 +166,9 @@ class ClientThread(Thread):
 			if msg and msg == b"ping":
 				print(msg)
 				self.client.send(b"pong")
+			else:
+				print("wtf msg ? unsync ? reset socket.")
+				return self.stop()
 		return self.stop()
 
 
