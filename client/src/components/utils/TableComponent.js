@@ -54,21 +54,42 @@ function TableComponent({data, onChange, visibility}) {
 			// verify types
 			let type = "";
 			let errorType = false;
+			let noValue = false;
 			for (let v of dataTmp) {
 				console.log("TEST");
 				console.log("TEST2", v[index]);
 				if (type === "")
 					type = typeof v[index];
 				else if (type !== typeof v[index]) {
+					// check if undefined value
+					if (type === "undefined" || typeof v[index] === "undefined")
+						noValue = true;
 					errorType = true;
 					break;
 				}
 			}
+
+			// TODO Implement undefined value consistent sorting
 			// break if different types
-			if (errorType) {
+			if (errorType/* && (type !== "string" && )*/) {
 				console.error("ERROR TYPE in Table");
 				return;
 			}
+
+			// solving undefined value
+			for (let v of dataTmp) {
+				if (type !== "undefined") {
+					if (v[index] === undefined) {
+						if (type === "string")
+							v[index] = "";
+/*						else if (type === "boolean")
+							v[index] = false;
+						else
+							v[index] = 0;*/
+					}
+				}
+			}
+
 			// sort table
 			console.log("TYPE", type);
 			if (type === "string")

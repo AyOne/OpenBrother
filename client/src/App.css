@@ -73,19 +73,44 @@
   position: sticky;
   display: flex;
   align-items: center;
-  width: 2rem;
+  width: 0;
   height: 3rem;
   float: right;
   right: 0;
 }
 
 .Store {
-  background-color: #F0F;
+  background-color: #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  color: whitesmoke;
   width: 20rem;
   text-align: center;
   height: 100vh;
   position: sticky;
   float : right;
+}
+
+.Store-button-content {
+  color : white;
+  margin-left: 1.2rem;
+  margin-bottom: 0.1rem;
+}
+
+.Store-title {
+  line-height: 1.5rem;
+  background-color: #111;
+  border-radius: 0.3rem;
+  width: 90%;
+}
+
+.Store-content {
+  background-color: #111;
+  border-radius: 0.3rem;
+  width: 90%;
+  height: 95%;
 }
 
 .Wrapper {

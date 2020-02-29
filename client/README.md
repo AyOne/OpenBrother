@@ -21,7 +21,8 @@ It uses video games data (in this case Minecraft) provided by an API (OpenBrothe
 
 ### PieCardComponent
 
-This component is made for visualize statistic data (PieChart).
+<details>
+<summary>This component is made for visualize statistic data (PieChart from recharts librairy).</summary>
 <table>
 <tr>
 <td>
@@ -36,3 +37,4 @@ This component is made for visualize statistic data (PieChart).
 </td>
 </tr>
 </table>
+</details>

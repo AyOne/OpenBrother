@@ -78,10 +78,15 @@ function App() {
 			<div style={{overflow: "hidden", float: "right", alignSelf: "right", position:"relative"}}>
 				<div className={"Wrapper"} style={style}>
 					<div className={"Store"}>
-						sdkfjskfjsd
+						<div className={"Store-title"}>
+							Title
+						</div>
+						<div className={"Store-content"}>
+
+						</div>
 					</div>
 					<div className="Store-button-hide" onClick={hide}>
-						<div>></div>
+						<div className="Store-button-content">{slider ? ">" : "<"}</div>
 					</div>
 				</div>
 			</div>
