@@ -20,9 +20,9 @@ This App is a "sandbox" app, it's a mixture of ReactJS components for personal d
 It uses video games data (in this case Minecraft) provided by an API (OpenBrother).<br />
 
 ### PieCardComponent
-
+This component is made for visualize statistic data (PieChart from recharts librairy).
 <details>
-<summary>This component is made for visualize statistic data (PieChart from recharts librairy).</summary>
+<summary>Demo</summary>
 <table>
 <tr>
 <td>
